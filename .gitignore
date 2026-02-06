@@ -1,0 +1,9 @@
+# Working directories
+plans/
+docs/explore/.work/
+
+# OS
+.DS_Store
+
+# Logs
+*.log
