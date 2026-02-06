@@ -1,0 +1,9 @@
+{
+  "hooks": [
+    {
+      "event": "PostToolUse:Write",
+      "description": "Validate handoff envelope output format after Write tool usage",
+      "command": "bash ${SKILL_DIR}/hooks/validate-output.sh"
+    }
+  ]
+}

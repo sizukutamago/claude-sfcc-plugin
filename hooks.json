@@ -1,0 +1,31 @@
+{
+  "$schema": "https://raw.githubusercontent.com/anthropics/claude-code/main/schemas/hooks.json",
+  "description": "Combined hooks for sfcc-plugin",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/skills/sfra-review/hooks/validate-output.sh\"",
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "test -f docs/explore/sfra-resolution-map.md && bash \"${CLAUDE_PLUGIN_ROOT}/skills/sfra-explorer/hooks/validate-map.sh\" || true",
+            "timeout": 10000,
+            "onError": "warn"
+          }
+        ]
+      }
+    ]
+  }
+}

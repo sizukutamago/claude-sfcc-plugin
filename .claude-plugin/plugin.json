@@ -1,0 +1,9 @@
+{
+  "name": "sfcc-plugin",
+  "version": "1.0.0",
+  "description": "Salesforce Commerce Cloud development tools for Claude Code",
+  "author": {
+    "name": "sizukutamago"
+  },
+  "keywords": ["sfcc", "salesforce", "commerce-cloud", "b2c"]
+}
