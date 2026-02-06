@@ -137,12 +137,21 @@ module\.superModule
 
 **Grep パターン**:
 ```javascript
-server\.(get|post|use|append|prepend|replace|extend)\s*\(
+server\.(get|post|use|append|prepend|replace|extend)\s*\(\s*['"]
 ```
+
+**ルート名抽出**: マッチ行から第一引数の文字列リテラルを抽出する。
+```
+server.get('Show', ...)    → method: "get",     routeName: "Show"
+server.prepend('AddProduct', ...) → method: "prepend", routeName: "AddProduct"
+server.extend(base)        → method: "extend",  routeName: null (引数がbase変数)
+```
+
+**注意**: `server.extend(base)` のように文字列リテラルではなく変数を引数に取るケースでは `routeName: null` とする。
 
 **抽出項目**:
 - メソッド名（get / post / use / append / prepend / replace / extend）
-- ルート名（第一引数の文字列）
+- ルート名（第一引数の文字列リテラル、変数の場合は null）
 - 行番号
 
 **出力形式**:
