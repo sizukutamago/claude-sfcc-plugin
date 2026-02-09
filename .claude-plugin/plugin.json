@@ -1,7 +1,7 @@
 {
   "name": "claude-sfcc-plugin",
-  "version": "1.2.1",
-  "description": "Salesforce Commerce Cloud (SFCC) development toolkit with SFRA code review via parallel swarm agents and interactive resolution map explorer for module override chains",
+  "version": "2.0.0",
+  "description": "Salesforce Commerce Cloud (SFCC) development toolkit with SFRA code review via parallel swarm agents and interactive codebase investigation for code flow tracing, module analysis, and business logic exploration",
   "author": {
     "name": "sizukutamago",
     "url": "https://github.com/sizukutamago"
@@ -15,7 +15,7 @@
     "sfra",
     "b2c",
     "code-review",
-    "module-resolution"
+    "code-exploration"
   ],
   "hooks": "./hooks.json"
 }

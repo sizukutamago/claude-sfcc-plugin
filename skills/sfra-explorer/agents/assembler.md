@@ -1,6 +1,6 @@
 ---
 name: sfra-explorer-assembler
-description: Merge scanner, resolver, and mapper outputs into the final SFRA Resolution Map with cross-validation and statistics.
+description: Merge scanner, resolver, and mapper outputs into a unified SFRA Resolution Map with cross-validation and statistics for Knowledge Base generation (Mode B).
 tools: Read, Glob, Write
 model: opus
 ---

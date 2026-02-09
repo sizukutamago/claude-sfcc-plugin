@@ -20,14 +20,14 @@ sfcc-plugin/
 │   │   ├── templates/
 │   │   ├── hooks/
 │   │   └── tests/
-│   └── sfra-explorer/       # SFRA 解決マップ生成 + 探索
+│   └── sfra-explorer/       # SFRA コード調査・探索
 │       ├── SKILL.md
 │       ├── agents/
+│       │   ├── investigator.md
 │       │   ├── scanner.md
 │       │   ├── resolver.md
 │       │   ├── mapper.md
-│       │   ├── assembler.md
-│       │   └── navigator.md
+│       │   └── assembler.md
 │       ├── references/
 │       ├── templates/
 │       ├── hooks/
@@ -51,17 +51,17 @@ SFRA コードベースの品質レビュー。Swarm パターンで 6 Explorer 
 **レビュー対象**: Controller / Model / ISML / Service / Jobs / Client JS
 **チェック項目**: ベストプラクティス / セキュリティ / パフォーマンス / アンチパターン / SCAPI 互換性
 
-### sfra-explorer (v1.0.0)
+### sfra-explorer (v2.0.0)
 
-SFRA の動的モジュール解決を静的に可視化し、AI によるインタラクティブ探索を支援。
+SFRA コードベースのインタラクティブ調査・探索を支援。コードフロー追跡、モジュール関係分析、ビジネスロジック調査に対応。
 
 | トリガー | 説明 |
 |---------|------|
-| 「SFRA explore」「resolution map」 | 英語トリガー |
-| 「SFRA 探索」「解決マップ」 | 日本語トリガー |
+| 「SFRA explore」「SFRA investigate」 | 英語トリガー |
+| 「SFRA 探索」「SFRA 調査」「コード調査」「コード探索」 | 日本語トリガー |
 
-**Phase 1**: Resolution Map 生成（scanner → resolver + mapper 並列 → assembler）
-**Phase 2**: navigator による対話的探索（Route Tracing / Override Analysis / Impact Analysis 等）
+**Mode A**: investigator による直接調査（Resolution Map 不要、10 カテゴリ対応）
+**Mode B**: Knowledge Base 生成（scanner → resolver + mapper 並列 → assembler → Resolution Map）
 
 ## コーディング規約
 

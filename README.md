@@ -46,24 +46,26 @@ Comprehensive SFRA code review using a Swarm pattern with 6 Explorer + 4 Reviewe
 
 ### SFRA Explorer (`/sfra-explore`)
 
-Static visualization of SFRA dynamic module resolution (`require('*/...')`, `module.superModule`, `server.append/prepend/replace`) with AI-powered interactive exploration.
+Interactive SFRA codebase investigation and exploration. Supports direct code investigation with or without a pre-generated Resolution Map.
 
 | Trigger | Description |
 |---------|-------------|
-| `SFRA explore`, `resolution map` | English triggers |
-| `SFRA 探索`, `解決マップ` | Japanese triggers |
+| `SFRA explore`, `SFRA investigate` | English triggers |
+| `SFRA 探索`, `SFRA 調査`, `コード調査`, `コード探索` | Japanese triggers |
 
 **Usage**:
 
 ```
-/sfra-explore                                    # Generate Resolution Map
-/sfra-explore Cart-AddProduct の実行フローは？      # Interactive exploration
+/sfra-explore Cart-AddProduct の実行フローは？      # Direct investigation (Mode A)
+/sfra-explore 商品価格はどこで計算される？           # Business logic investigation
+/sfra-explore（マップ生成を指示）                    # Knowledge Base generation (Mode B)
 ```
 
 **Query categories**:
 - Route Tracing / Override Analysis / Chain Tracing
 - Impact Analysis / Hook Investigation
 - Template Tracing / Dependency Mapping
+- Business Logic / Data Flow / Code Pattern
 
 ## Requirements
 

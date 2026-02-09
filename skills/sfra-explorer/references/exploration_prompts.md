@@ -1,7 +1,7 @@
 # Exploration Prompts Catalog
 
 AI エージェントが SFRA コードベースを探索する際に使用する、構造化プロンプトのカタログ。
-navigator エージェントがインタラクティブ探索（Phase 2）で活用する。
+investigator エージェントがインタラクティブ調査で活用する。
 
 ---
 
@@ -16,6 +16,9 @@ navigator エージェントがインタラクティブ探索（Phase 2）で活
 | [Hook Investigation](#hook-investigation) | Hook の登録と実行の調査 | 「dw.order.calculate の全 Hook を見せて」 |
 | [Template Tracing](#template-tracing) | テンプレートの解決と include 追跡 | 「cart.isml の include ツリーを見せて」 |
 | [Dependency Mapping](#dependency-mapping) | カートリッジ間の依存関係可視化 | 「app_custom は何に依存している？」 |
+| [Business Logic](#business-logic) | ビジネスロジックの調査 | 「商品価格はどこで計算される？」 |
+| [Data Flow](#data-flow) | データの流れ追跡 | 「product.availability は API からテンプレートまでどう流れる？」 |
+| [Code Pattern](#code-pattern) | パターンの横断検索 | 「Transaction.wrap を使っている全箇所は？」 |
 
 ---
 
@@ -26,11 +29,12 @@ navigator エージェントがインタラクティブ探索（Phase 2）で活
 ```
 [Route] {Controller}-{Action} の完全な実行フローを表示してください。
 
-解決マップの Section 4 (Controller Route Map) を参照し:
-1. prepend → base/replace → append の実行順序
-2. 各ステップの定義元カートリッジとファイル:行番号
-3. route:BeforeComplete / route:Complete イベントリスナー
-4. 各ミドルウェアで設定される ViewData のキー
+Resolution Map があれば Section 4 (Controller Route Map) を参照。
+なければ直接探索:
+1. Grep: server\.(get|post|use|append|prepend|replace)\s*\(\s*['"]{Action}
+2. 対象: cartridges/*/cartridge/controllers/{Controller}.js
+3. カートリッジパス順にソートして実行順序を決定
+4. 各ファイルを Read してイベントリスナー（this.on('route:*')）を確認
 
 出力形式:
   1. [prepend] app_custom/controllers/Cart.js:15 — CSRF 検証
@@ -62,7 +66,14 @@ navigator エージェントがインタラクティブ探索（Phase 2）で活
 ```
 [Override] {ファイルパス} の上書き関係を表示してください。
 
-解決マップの Section 2 (File Resolution Table) を参照し:
+Resolution Map があれば Section 2 (File Resolution Table) を参照。
+なければ直接探索:
+1. Glob: cartridges/*/cartridge/{相対パス}
+2. 存在するカートリッジを全列挙
+3. カートリッジパス最左が実際の解決先（Winner）
+4. 各ファイルを Read して module.superModule の使用を確認
+
+出力:
 1. 実際に解決されるカートリッジ (Resolves From)
 2. シャドウイングされるカートリッジ (Also In)
 3. module.superModule の解決先
@@ -90,11 +101,12 @@ navigator エージェントがインタラクティブ探索（Phase 2）で活
 ```
 [Chain] {ファイル名} の module.superModule 継承チェーンを完全にトレースしてください。
 
-解決マップの Section 3 (SuperModule Chains) を参照し:
-1. 完全なチェーン表示: A → B → C → null
-2. 各ステップで追加/変更されるフィールド
-3. プロトタイプ継承パターンか Mixin パターンか
-4. チェーン長が 5 以上の場合は警告
+Resolution Map があれば Section 3 (SuperModule Chains) を参照。
+なければ直接探索:
+1. 対象ファイルの module.superModule 使用を確認
+2. カートリッジパスで自分より右に同名ファイルが存在するか Glob
+3. 見つかったファイルも module.superModule を使用しているか Read で確認
+4. 再帰的にチェーンを構築（null に到達するまで）
 
 出力形式:
   Chain: app_custom/models/product.js
@@ -125,11 +137,12 @@ navigator エージェントがインタラクティブ探索（Phase 2）で活
 ```
 [Impact] {ファイルパス} を変更した場合の影響範囲を分析してください。
 
-解決マップの Section 7 (Reverse Dependency Index) を参照し:
-1. このファイルを require している全ファイル（直接参照）
-2. superModule チェーンで依存しているファイル
-3. このファイルのルートを append/prepend しているコントローラー
-4. このファイルが提供するテンプレートを include しているテンプレート
+Resolution Map があれば Section 7 (Reverse Dependency Index) を参照。
+なければ直接探索:
+1. Grep: require\s*\(\s*['"].*{ファイル名} で直接参照元を検出
+2. 同名ファイルが他カートリッジに存在するか Glob で確認（superModule 依存）
+3. Controller の場合: ルート名を抽出し append/prepend している他のファイルを検索
+4. テンプレートの場合: <isinclude template="{パス}"> を Grep
 
 影響度:
   - 高: 直接 require + superModule 依存
@@ -158,11 +171,12 @@ navigator エージェントがインタラクティブ探索（Phase 2）で活
 ```
 [Hook] {フック名} の全登録と実行順序を表示してください。
 
-解決マップの Section 6 (Hook Registration Map) を参照し:
-1. 登録している全カートリッジ（全て実行される）
-2. 各カートリッジの実行スクリプトパス
-3. カートリッジパス順の実行順序
-4. 各 Hook 実装の処理概要
+Resolution Map があれば Section 6 (Hook Registration Map) を参照。
+なければ直接探索:
+1. 各カートリッジの package.json から hooks エントリを Read
+2. 参照先 hooks.json をパースし対象 Hook 名を検索
+3. 全カートリッジの登録を列挙（全て実行される）
+4. 各スクリプトファイルを Read して実装概要を確認
 
 重要: Hook は require('*/...') と異なり、全カートリッジの登録分が全て実行されます。
 ```
@@ -187,11 +201,12 @@ navigator エージェントがインタラクティブ探索（Phase 2）で活
 ```
 [Template] {テンプレートパス} の解決先と include ツリーを表示してください。
 
-解決マップの Section 5 (Template Override Map) を参照し:
-1. 実際にレンダリングされるカートリッジ (Provided By)
-2. 上書きされるカートリッジ (Overrides)
-3. isinclude で参照される全テンプレート（再帰的）
-4. ロケール別テンプレートの存在確認
+Resolution Map があれば Section 5 (Template Override Map) を参照。
+なければ直接探索:
+1. Glob: cartridges/*/cartridge/templates/default/{テンプレートパス}.isml
+2. カートリッジパス最左が解決先
+3. 解決先テンプレートを Read して <isinclude template="..."> を抽出
+4. 再帰的に include ツリーを構築
 
 出力形式:
   cart/cart.isml (app_custom, overrides: app_storefront_base)
@@ -222,7 +237,15 @@ navigator エージェントがインタラクティブ探索（Phase 2）で活
 ```
 [Deps] {カートリッジ名} の依存関係を表示してください。
 
-解決マップの Section 9 (Dependency Graph Summary) を参照し:
+Resolution Map があれば Section 9 (Dependency Graph Summary) を参照。
+なければ直接探索:
+1. 対象カートリッジの全ファイルから require パターンを Grep
+2. wildcard require の解決先カートリッジを判定
+3. superModule 使用ファイルの解決先カートリッジを判定
+4. 逆方向: 他カートリッジから対象への require を Grep
+5. 結果を Mermaid グラフで可視化
+
+出力:
 1. require で参照している他カートリッジ（参照数付き）
 2. superModule で依存している他カートリッジ
 3. Hook で連携しているカートリッジ
@@ -240,6 +263,122 @@ Mermaid グラフで可視化。
 1. カートリッジ A → B → A の循環 require
 2. ファイルレベルの循環 require
 3. 間接的な循環（3ホップ以上）
+```
+
+---
+
+## Business Logic
+
+### プロンプト: ビジネスロジック調査
+
+```
+[Logic] {ビジネスドメインの質問}（例: 商品価格はどこで計算される？）
+
+Resolution Map は不要（直接探索）:
+1. ユーザーの質問からキーとなるビジネスドメイン語を抽出
+   （例: 価格計算 → "price", "calculate", "pricing"）
+2. Grep で関連ファイルを検索
+3. Controller → Model → Script の呼び出しチェーンを追跡
+4. 該当するビジネスロジックの実装を Read で確認
+
+出力:
+1. 関連ファイルの一覧（Controller / Model / Script）
+2. 処理フロー（呼び出しチェーン）
+3. 主要なロジックのコードスニペット
+4. 関連する設定（Preferences、Custom Objects 等）
+```
+
+### プロンプト: 特定の処理フロー調査
+
+```
+[Flow] {処理名}（例: 注文確定フロー、在庫チェック、クーポン適用）の全体像を調査してください。
+
+調査手順:
+1. 関連するコントローラーのルートを特定
+2. 呼び出される Model / Helper / Script を追跡
+3. DW API の使用箇所を特定（Transaction.wrap、CustomObjectMgr 等）
+4. 外部連携（Service Call）があれば特定
+5. Hook による拡張ポイントを確認
+```
+
+---
+
+## Data Flow
+
+### プロンプト: データ属性の追跡
+
+```
+[Data] {データ属性名} が API からテンプレートまでどう流れるか追跡してください。
+
+Resolution Map は不要（直接探索）:
+1. 起点を特定（Script API オブジェクト、Model、Controller のいずれか）
+2. Controller 内の res.setViewData / res.render を Grep
+3. Model のコンストラクタ/メソッドで対象フィールドの設定箇所を Read
+4. テンプレート内の ${pdict.xxx} 参照を Grep
+5. 全体のデータフローを図示
+
+出力:
+1. データの起点（Script API / Model）
+2. 変換ステップ（Model → Controller → viewData）
+3. テンプレートでの表示（pdict 参照）
+4. 中間で加工されるポイント
+```
+
+### プロンプト: pdict ライフサイクル
+
+```
+[pdict] {Controller}-{Action} で設定される pdict（viewData）の全キーと設定元を一覧にしてください。
+
+調査手順:
+1. Controller の各ミドルウェア内の res.setViewData() を Read
+2. route:BeforeComplete イベントでの追加データを確認
+3. res.render() の第二引数を確認
+4. テンプレート側で参照されている ${pdict.*} キーとの整合性を検証
+```
+
+---
+
+## Code Pattern
+
+### プロンプト: パターン横断検索
+
+```
+[Pattern] {パターン名 or コード断片}（例: Transaction.wrap）の全使用箇所を検索してください。
+
+Resolution Map は不要（直接探索）:
+1. ユーザーが指定したパターンを Grep で横断検索
+2. 結果をカートリッジ別・ファイルタイプ別に分類
+3. 代表的な使用例を Read で確認
+
+出力:
+1. 該当箇所の一覧（ファイル:行番号）
+2. カートリッジ別の分布
+3. ファイルタイプ別の分布（controller / model / script）
+4. 代表的な使用例のコードスニペット
+```
+
+### プロンプト: サービス呼び出し調査
+
+```
+[Service] プロジェクト内の LocalServiceRegistry.createService の全使用箇所と設定を調査してください。
+
+調査手順:
+1. Grep: LocalServiceRegistry\.createService で全使用箇所を検出
+2. 各サービスの ID と設定ファイルを特定
+3. createRequest / parseResponse のコールバックを Read
+4. サービスを呼び出しているコントローラー/スクリプトを特定
+```
+
+### プロンプト: API 使用パターン調査
+
+```
+[API] {DW API クラス名}（例: CustomObjectMgr、OrderMgr、BasketMgr）の全使用箇所を調査してください。
+
+調査手順:
+1. Grep: require\s*\(\s*['"]dw/.*{クラス名} で import 箇所を検出
+2. 各ファイルでの使用メソッドを特定
+3. Transaction.wrap 内での使用を確認
+4. エラーハンドリングパターンを確認
 ```
 
 ---
@@ -273,11 +412,11 @@ Mermaid グラフで可視化。
 
 ---
 
-## navigator エージェントへの指示
+## investigator エージェントへの指示
 
 1. ユーザーの質問を上記カテゴリに分類する
 2. 該当するプロンプトテンプレートを適用する
-3. まず解決マップを参照し、次に実コードを確認する
+3. Resolution Map があれば参照し、なければ直接探索する
 4. 回答には必ず**ファイルパス:行番号**を含める
-5. 不確実な情報（解決マップにない、動的解決等）は明示的に注記する
+5. 不確実な情報（動的解決等）は明示的に注記する
 6. 複合的な質問は段階的に回答する

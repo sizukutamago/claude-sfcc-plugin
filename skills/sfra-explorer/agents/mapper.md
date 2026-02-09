@@ -1,6 +1,6 @@
 ---
 name: sfra-explorer-mapper
-description: Map controller routes with middleware chains, ISML template overrides, and hook registrations from scanner output.
+description: Map controller routes with middleware chains, ISML template overrides, and hook registrations from scanner output for Knowledge Base generation (Mode B).
 tools: Read, Glob, Grep, Write
 model: sonnet
 ---

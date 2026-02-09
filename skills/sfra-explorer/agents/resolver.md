@@ -1,6 +1,6 @@
 ---
 name: sfra-explorer-resolver
-description: Resolve require('*/...') targets, trace module.superModule chains, detect file collisions, and build reverse dependency index across cartridges.
+description: Resolve require('*/...') targets, trace module.superModule chains, detect file collisions, and build reverse dependency index for Knowledge Base generation (Mode B).
 tools: Read, Glob, Grep, Write
 model: opus
 ---

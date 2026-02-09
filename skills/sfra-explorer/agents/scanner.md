@@ -1,6 +1,6 @@
 ---
 name: sfra-explorer-scanner
-description: Scan SFRA codebase to create normalized JSON inventory of files, require patterns, module.superModule usage, server methods, and event listeners.
+description: Scan SFRA codebase to build a normalized inventory of files, require patterns, module.superModule usage, server methods, event listeners, and hook registrations for Knowledge Base generation (Mode B).
 tools: Read, Glob, Grep, Write
 model: sonnet
 ---
