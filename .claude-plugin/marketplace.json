@@ -1,0 +1,19 @@
+{
+  "name": "sfcc-plugin",
+  "owner": {
+    "name": "sizukutamago"
+  },
+  "plugins": [
+    {
+      "name": "sfcc-plugin",
+      "source": ".",
+      "description": "Salesforce Commerce Cloud (SFCC) development toolkit with SFRA code review via parallel swarm agents and interactive resolution map explorer for module override chains",
+      "version": "1.1.0",
+      "author": {
+        "name": "sizukutamago"
+      },
+      "category": "development",
+      "homepage": "https://github.com/sizukutamago/claude-sfcc-plugin"
+    }
+  ]
+}
