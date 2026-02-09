@@ -1,54 +1,75 @@
 # sfcc-plugin
 
-Claude Code プラグイン - Salesforce Commerce Cloud (SFCC) 開発ツール集
+Salesforce Commerce Cloud (SFCC) development toolkit for Claude Code — SFRA code review with parallel swarm agents and interactive module resolution explorer.
 
-SFRA コードレビューと動的モジュール解決の可視化・探索を提供します。
+Claude Code プラグイン - SFRA コードレビューと動的モジュール解決の可視化・探索を提供します。
 
-## インストール
+## Installation
 
-### ローカル開発
+### From Marketplace
+
+```bash
+/plugin install sfcc-plugin@claude-plugin-directory
+```
+
+### From GitHub
+
+```bash
+/plugin install sizukutamago/claude-sfcc-plugin
+```
+
+### Local Development
 
 ```bash
 claude --plugin-dir /path/to/sfcc-plugin
 ```
 
-## スキル一覧
+## Skills
 
-### SFRA レビュー
+### SFRA Review (`/sfra-review`)
 
-| スキル | 説明 | トリガー例 |
-|--------|------|-----------|
-| sfra-review | SFRA コードレビュー（Swarm パターン） | 「SFRA review」「SFRA レビュー」 |
+Comprehensive SFRA code review using a Swarm pattern with 6 Explorer + 4 Reviewer agents running in parallel.
 
-Swarm パターンで Explorer×6 + Reviewer×4 を並列実行し、Controller / Model / ISML / Service / Jobs / Client JS を包括レビュー。
+| Trigger | Description |
+|---------|-------------|
+| `SFRA review`, `SFCC code review` | English triggers |
+| `SFRA レビュー`, `コードレビュー` | Japanese triggers |
 
-**チェック項目**:
-- ベストプラクティス準拠
-- セキュリティ（CSRF / XSS / インジェクション）
-- パフォーマンス（N+1 / キャッシュ / ループ内 require）
-- アンチパターン検出
-- SCAPI 互換性
+**Review targets**: Controller / Model / ISML / Service / Jobs / Client JS
 
-### SFRA Explorer
+**Checks**:
+- Best practices compliance
+- Security (CSRF / XSS / injection)
+- Performance (N+1 / cache / require in loops)
+- Anti-pattern detection
+- SCAPI compatibility
 
-| スキル | 説明 | トリガー例 |
-|--------|------|-----------|
-| sfra-explorer | SFRA 解決マップ生成 + インタラクティブ探索 | 「SFRA explore」「SFRA 探索」 |
+### SFRA Explorer (`/sfra-explore`)
 
-SFRA の動的モジュール解決（`require('*/...')`、`module.superModule`、`server.append/prepend/replace`）を静的に可視化する Resolution Map を生成し、AI によるインタラクティブ探索を支援。
+Static visualization of SFRA dynamic module resolution (`require('*/...')`, `module.superModule`, `server.append/prepend/replace`) with AI-powered interactive exploration.
 
-**使い方**:
+| Trigger | Description |
+|---------|-------------|
+| `SFRA explore`, `resolution map` | English triggers |
+| `SFRA 探索`, `解決マップ` | Japanese triggers |
+
+**Usage**:
 
 ```
-/sfra-explore                              # Resolution Map 生成
-/sfra-explore Cart-AddProduct の実行フローは？  # インタラクティブ探索
+/sfra-explore                                    # Generate Resolution Map
+/sfra-explore Cart-AddProduct の実行フローは？      # Interactive exploration
 ```
 
-**対応する質問カテゴリ**:
+**Query categories**:
 - Route Tracing / Override Analysis / Chain Tracing
 - Impact Analysis / Hook Investigation
 - Template Tracing / Dependency Mapping
 
-## ライセンス
+## Requirements
+
+- Claude Code CLI
+- An SFRA-based project in the working directory
+
+## License
 
 MIT License
