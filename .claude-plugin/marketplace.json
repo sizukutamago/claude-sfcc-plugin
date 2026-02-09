@@ -1,5 +1,5 @@
 {
-  "name": "sfcc-plugin",
+  "name": "claude-sfcc-plugin",
   "metadata": {
     "description": "SFCC development tools for Claude Code — SFRA code review and module resolution explorer"
   },
@@ -8,7 +8,7 @@
   },
   "plugins": [
     {
-      "name": "sfcc-plugin",
+      "name": "claude-sfcc-plugin",
       "source": {
         "source": "github",
         "repo": "sizukutamago/claude-sfcc-plugin"
